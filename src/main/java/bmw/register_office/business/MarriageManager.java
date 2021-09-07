@@ -4,6 +4,7 @@ import bmw.register_office.dao.MarriageDao;
 import bmw.register_office.dao.PersonDao;
 import bmw.register_office.domain.MarriageCertificate;
 import bmw.register_office.domain.Person;
+import bmw.register_office.domain.PersonFemale;
 import bmw.register_office.domain.PersonMale;
 import bmw.register_office.view.MarriageRequest;
 import bmw.register_office.view.MarriageResponse;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service("marriageManagerService")
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -31,17 +33,63 @@ public class MarriageManager {
     @Transactional
     public MarriageResponse findMarriageCertificate(MarriageRequest request){
         logger.info("MarriageManager.findMarriageCertificate called");
-        MarriageCertificate cert = marriageDao.findMarriageCertificate(request);
+        //MarriageCertificate cert = marriageDao.findMarriageCertificate(request);
         personDao.findPersons();
 
-        Person p = new PersonMale();
-        p.setFirstName("Мария");
-        p.setLastName("Пелешко");
-        p.setPatronymic("Вячеславовна");
-        p.setDateOfBirth(LocalDate.of(2007,11,23));
-        Long id =personDao.addPerson(p);
-        logger.info("Person added id {}", id);
+        personDao.addPerson(getPerson(1));
+        personDao.addPerson(getPerson(3));
+        MarriageCertificate mc = getMarriageCertificate();
+        //marriageDao.saveAndFlush(mc);
+        System.out.println();
+        List<MarriageCertificate> list = marriageDao.findByNumber("1234567");
+        for (MarriageCertificate n : list){
+            System.out.println("ID сертификата - " +  n.getMarriageCertificateId());
+            System.out.println("Номер сертификата - " +  n.getNumber());
+        }
+        System.out.println();
+        List<MarriageCertificate> list2 = marriageDao.findByNum("1234567");
+        for (MarriageCertificate n : list2){
+            System.out.println("ID сертификата - " +  n.getMarriageCertificateId());
+            System.out.println("Номер сертификата - " +  n.getNumber());
+        }
+        System.out.println();
+        List<MarriageCertificate> list3 = marriageDao.findSomething("1234567");
+        for (MarriageCertificate n : list3){
+            System.out.println("ID сертификата - " +  n.getMarriageCertificateId());
+            System.out.println("Номер сертификата - " +  n.getNumber());
+        }
+
+        //marriageDao.findAll();
+        //marriageDao.findById(1L);
+
         return new MarriageResponse();
+    }
+
+    private MarriageCertificate getMarriageCertificate(){
+        MarriageCertificate mc = new MarriageCertificate();
+        mc.setIssueDate(LocalDate.now());
+        mc.setNumber("1234567");
+        mc.setActive(true);
+        List<Person> persons = personDao.findPersons();
+
+        for(Person person : persons){
+            if(person instanceof PersonMale){
+                mc.setHusband((PersonMale) person);
+            }else {
+                mc.setWife((PersonFemale) person);
+            }
+        }
+        return mc;
+    }
+
+
+    private Person getPerson(int sex){
+        Person p =  sex ==1 ? new  PersonMale() :  new PersonFemale();
+        p.setFirstName("1" + sex);
+        p.setLastName("2" + sex);
+        p.setPatronymic("2" + sex);
+        p.setDateOfBirth(LocalDate.of(2007,11,23));
+        return  p;
     }
 
 }

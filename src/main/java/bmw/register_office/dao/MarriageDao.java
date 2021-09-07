@@ -1,39 +1,44 @@
 package bmw.register_office.dao;
 
-import bmw.register_office.business.MarriageManager;
 import bmw.register_office.domain.MarriageCertificate;
-import bmw.register_office.view.MarriageRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
+import java.util.List;
 
-@Component
-@PropertySource(value ={ "classpath:/register.properties"})
-public class MarriageDao {
+//@Component
+//@PropertySource(value ={ "classpath:/register.properties"})
+@Repository
+public interface MarriageDao  extends JpaRepository<MarriageCertificate, Long> {
 
-    private EntityManager entityManager;
-    @Value("${test.value}")
-    private String test;
+    List<MarriageCertificate> findByNumber(String number);
 
-    private static final Logger logger = LoggerFactory.getLogger(MarriageDao.class);
+    List<MarriageCertificate> findByNum(@Param("number") String number);
 
-    public String getTest() {
-        return test;
-    }
+    @Query("SELECT mc FROM MarriageCertificate mc WHERE mc.number = :number")
+    List<MarriageCertificate> findSomething(@Param("number") String number);
 
-    public void setTest(String test) {
-        this.test = test;
-    }
 
-    public MarriageCertificate findMarriageCertificate(MarriageRequest request){
-        logger.info("MarriageDao.findMarriageCertificate called: {}", test);
-
-        return new MarriageCertificate();
-
-    }
+//    private EntityManager entityManager;
+//    @Value("${test.value}")
+//    private String test;
+//
+//    private static final Logger logger = LoggerFactory.getLogger(MarriageDao.class);
+//
+//    public String getTest() {
+//        return test;
+//    }
+//
+//    public void setTest(String test) {
+//        this.test = test;
+//    }
+//
+//    public MarriageCertificate findMarriageCertificate(MarriageRequest request){
+//        logger.info("MarriageDao.findMarriageCertificate called: {}", test);
+//
+//        return new MarriageCertificate();
+//
+//    }
 }
